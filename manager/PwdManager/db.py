@@ -37,8 +37,22 @@ def select_all(conn):
 
 	rows = cur.fetchall()
 
-	for row in rows:
-		print(row)
+	#for row in rows:
+		#print(row)
+
+	return rows
+
+def select_by_website(conn, web):
+	cur = conn.cursor()
+	cur.execute('SELECT * FROM passwords WHERE website = ?', (web,))
+	rows = cur.fetchall
+
+	return rows
+
+def select_by_username(conn, username):
+	cur = conn.cursor()
+	cur.execute('SELECT * FROM passwords WHERE username = ?', (username,))
+	rows = cur.fetchall
 
 	return rows
 
@@ -48,9 +62,9 @@ def update_entry(conn, entry, entry_id):
 	cur.execute(sql, entry+entry_id)
 	conn.commit()
 
-def delete_task(conn, id): #id: tuple format
+def delete_task(conn, id):
 	sql = 'DELETE FROM passwords WHERE id = ?'
 	cur = conn.cursor
-	cur.execute(sql, id)
+	cur.execute(sql, (id,))
 	conn.commit()
 

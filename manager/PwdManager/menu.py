@@ -1,3 +1,5 @@
+import db
+
 def welcomemsg():
 	print("Welcome to Password Manager")
 	MasterPwd = input("Plase enter the Master Password:")
@@ -8,21 +10,34 @@ def welcomemsg():
 
 	print("You are in!\n")
 
-def menu():
+def menu(conn):
 	while(1):
 		print("[1] Search Password")
-		print("[2] Add/update Password")
+		print("[2] Add Password")
 		print("[3] Show all")
 		print("[4] quit\n")
 
 		option = input()
 
 		if option == "1":
-			print("asking website and username/email, then print associated pwd")
+			web = input("Which website?")
+			web = web.lower()
+			rows = db.select_by_website(conn, web)
+			for row in rows:
+				print(row)
+			#print("asking website and username/email, then print associated pwd")
 		elif option == "2":
-			print("asking website and username/email, then user can enter pwd")
+			web = input("Which website?")
+			web = web.lower()
+			user = input("What is your username?")
+			pwd = input("What is your password?")
+			db.create_entry(conn, (web, user, pwd))
+			#print("asking website and username/email, then user can enter pwd")
 		elif option == "3":
-			print("Show the entire data base")
+			rows = db.select_all(conn)
+			for row in rows:
+				print(row)
+			#print("Show the entire data base")
 			#need some way to organize this
 		elif option == "4":
 			print("Bye!")
@@ -30,7 +45,11 @@ def menu():
 		else: #error handle
 			print("no such option\n")
 
+conn = db.connect_db(r"pwds.db")
+try:
+	db.select_all()
+except:
+	db.create_table(conn)
 
 welcomemsg()
-menu()
-
+menu(conn)
