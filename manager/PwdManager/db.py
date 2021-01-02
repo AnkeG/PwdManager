@@ -45,26 +45,26 @@ def select_all(conn):
 def select_by_website(conn, web):
 	cur = conn.cursor()
 	cur.execute('SELECT * FROM passwords WHERE website = ?', (web,))
-	rows = cur.fetchall
+	rows = cur.fetchall()
 
 	return rows
 
 def select_by_username(conn, username):
 	cur = conn.cursor()
 	cur.execute('SELECT * FROM passwords WHERE username = ?', (username,))
-	rows = cur.fetchall
+	rows = cur.fetchall()
 
 	return rows
 
 def update_entry(conn, entry, entry_id):
 	sql = 'UPDATE passwords SET website = ?, username = ?, passwords = ? WHERE id = ?'
-	cur = conn.cursor
+	cur = conn.cursor()
 	cur.execute(sql, entry+entry_id)
 	conn.commit()
 
 def delete_task(conn, id):
 	sql = 'DELETE FROM passwords WHERE id = ?'
-	cur = conn.cursor
+	cur = conn.cursor()
 	cur.execute(sql, (id,))
 	conn.commit()
 

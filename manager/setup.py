@@ -8,9 +8,9 @@ config = {
 	'author': 'Anke Ge',
 	'url':'URL',
 	'download_url':'download_url',
-	'author_email':'geanke20@gmail.com',
+	'author_email':'geanke12@gmail.com',
 	'version':'0.1',
-	'install_requires':['nose'],
+	'install_requires':['sqlite3'],
 	'packages':['NAME'],
 	'scripts':[],
 	'name': 'PwdManager'
