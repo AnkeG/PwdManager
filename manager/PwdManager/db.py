@@ -56,10 +56,10 @@ def select_by_username(conn, username):
 
 	return rows
 
-def update_entry(conn, entry, entry_id):
-	sql = 'UPDATE passwords SET website = ?, username = ?, passwords = ? WHERE id = ?'
+def update_pwd_by_id(conn, pwd, entry_id):
+	sql = 'UPDATE passwords SET password = ? WHERE id = ?'
 	cur = conn.cursor()
-	cur.execute(sql, entry+entry_id)
+	cur.execute(sql, (pwd, entry_id))
 	conn.commit()
 
 def delete_task(conn, id):
@@ -68,3 +68,9 @@ def delete_task(conn, id):
 	cur.execute(sql, (id,))
 	conn.commit()
 
+def select_by_id(conn, id):
+	cur = conn.cursor()
+	cur.execute('SELECT * FROM passwords WHERE id = ?', (id,))
+	rows = cur.fetchall()
+
+	return rows
