@@ -21,7 +21,7 @@ def display_pwds(cipher, rows):
 	print("\n")
 
 def get_key():
-	key = input("Please enter the encryption key")
+	key = input("Please enter the encryption key: ")
 	key = str.encode(key)
 	print(key)
 	return key
@@ -37,10 +37,10 @@ def menu(conn, key):
 		print("[3] Show All")
 		print("[4] Update A Password")
 		print("[5] Delete A Password")
-		print("[6] quit")
+		print("[6] Exit")
 		print("*******************************")
 
-		option = input()
+		option = input("Enter number of the option: ")
 
 		if option == "1":
 			web = input("Which website?")
@@ -50,7 +50,6 @@ def menu(conn, key):
 				print("No password of ", web, " stored\n")
 			else:
 				display_pwds(cipher, rows)
-			#print("asking website and username/email, then print associated pwd")
 
 		elif option == "2":
 			web = input("Which website? ")
@@ -60,7 +59,6 @@ def menu(conn, key):
 			pwd = crypt.encrypt_pwd(cipher, pwd)
 			db.create_entry(conn, (web, user, pwd))
 			print("password stored\n")
-			#print("asking website and username/email, then user can enter pwd")
 
 		elif option == "3":
 			rows = db.select_all(conn)
@@ -68,8 +66,6 @@ def menu(conn, key):
 				print("no passwords stored yet\n")
 			else:
 				display_pwds(cipher, rows)
-			#print("Show the entire data base")
-			#need some way to organize this
 
 		elif option == "4":
 			pwdid = input("What is the id of the password need to be updated? ")
@@ -79,7 +75,6 @@ def menu(conn, key):
 			db.update_pwd_by_id(conn, pwd, pwdid)
 			rows = db.select_by_id(conn, pwdid)
 			display_pwds(cipher, rows)
-			#print("update password")
 
 		elif option == "5":
 			pwdid = input("Enter the id of the password need to delete: ")
@@ -96,15 +91,12 @@ def menu(conn, key):
 
 
 conn = db.connect_db(r"pwds.db")
-try:
-	db.select_all()
-except:
-	db.create_table(conn)
-	print("First time here? Please save the following key to a safe place.")
-	print("You will need to enter this key to get your passwords in the future")
-	print(crypt.new_key(), '\n')
+db.create_table(conn)
 
+print("If you are the first time here, please save the following key to a safe place.")
+print("You will need to enter this key to get your passwords in the future")
+print(crypt.new_key(), '\n')
 
-welcomemsg()
+#welcomemsg()
 key = get_key()
 menu(conn, key)
