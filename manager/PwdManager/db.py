@@ -19,7 +19,7 @@ def create_table(conn):
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			website TEXT NOT NULL,
 			username TEXT NOT NULL,
-			password TEXT NOT NULL
+			password BLOB NOT NULL
 			);''')
 	except Error as e:
 		print(e)

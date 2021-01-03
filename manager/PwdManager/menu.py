@@ -1,23 +1,35 @@
-import db
+import db, crypt
 
 def welcomemsg():
 	print("Welcome to Password Manager")
-	MasterPwd = input("Plase enter the Master Password:")
+	MasterPwd = input("Please enter the Master Password:")
 
 	while MasterPwd != "12345":
 		print("Wrong Master Password")
-		MasterPwd = input("Plase enter the Master Password:")
+		MasterPwd = input("Please enter the Master Password:")
 
 	print("You are in!\n")
 
-def display_pwds(rows):
+def display_pwds(cipher, rows):
 	print("Id    website    username    pwds")
 	print("---------------------------------------------------------------")
 	for row in rows:
-		print(row[0], "    ", row[1], "    ", row[2], "    ", row[3])
+		print(row[0], "    ", 
+			row[1], "    ", 
+			row[2], "    ", 
+			crypt.decrypt_pwd(cipher, row[3]))
 	print("\n")
 
-def menu(conn):
+def get_key():
+	key = input("Please enter the encryption key")
+	key = str.encode(key)
+	print(key)
+	return key
+
+def menu(conn, key):
+
+	cipher = crypt.read_key(key)
+
 	while(1):
 		print("*******************************")
 		print("[1] Search Passwords")
@@ -37,7 +49,7 @@ def menu(conn):
 			if not rows:
 				print("No password of ", web, " stored\n")
 			else:
-				display_pwds(rows)
+				display_pwds(cipher, rows)
 			#print("asking website and username/email, then print associated pwd")
 
 		elif option == "2":
@@ -45,6 +57,7 @@ def menu(conn):
 			web = web.lower()
 			user = input("What is your username? ")
 			pwd = input("What is your password? ")
+			pwd = crypt.encrypt_pwd(cipher, pwd)
 			db.create_entry(conn, (web, user, pwd))
 			print("password stored\n")
 			#print("asking website and username/email, then user can enter pwd")
@@ -54,17 +67,18 @@ def menu(conn):
 			if not rows:
 				print("no passwords stored yet\n")
 			else:
-				display_pwds(rows)
+				display_pwds(cipher, rows)
 			#print("Show the entire data base")
 			#need some way to organize this
 
 		elif option == "4":
-			pwdid = input("Enter the id of the password need to be updated: ")
+			pwdid = input("What is the id of the password need to be updated? ")
 			pwdid = int(pwdid)
-			pwd = input("Enter the new password: ")
+			pwd = input("What is the new password? ")
+			pwd = crypt.encrypt_pwd(cipher, pwd)
 			db.update_pwd_by_id(conn, pwd, pwdid)
 			rows = db.select_by_id(conn, pwdid)
-			display_pwds(rows)
+			display_pwds(cipher, rows)
 			#print("update password")
 
 		elif option == "5":
@@ -79,11 +93,18 @@ def menu(conn):
 		else: #error handle
 			print("no such option\n")
 
+
+
 conn = db.connect_db(r"pwds.db")
 try:
 	db.select_all()
 except:
 	db.create_table(conn)
+	print("First time here? Please save the following key to a safe place.")
+	print("You will need to enter this key to get your passwords in the future")
+	print(crypt.new_key(), '\n')
+
 
 welcomemsg()
-menu(conn)
+key = get_key()
+menu(conn, key)
