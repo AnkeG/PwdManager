@@ -1,4 +1,4 @@
-import db, crypt
+import db, crypt, pyperclip
 
 def welcomemsg():
 	print("Welcome to Password Manager")
@@ -26,18 +26,43 @@ def get_key():
 	print(key)
 	return key
 
+def submenu(conn, cipher):
+	print("**[1] Update; [2] Delete [3]Copy to clip board**")
+	option = input("Enter above option numnber or other keys to quit: ")
+	if option == '1':
+		pwdid = input("What is the id of the password need to be updated? ")
+		pwdid = int(pwdid)
+		pwd = input("What is the new password? ")
+		pwd = crypt.encrypt_pwd(cipher, pwd)
+		db.update_pwd_by_id(conn, pwd, pwdid)
+		print("Password updated")
+		rows = db.select_by_id(conn, pwdid)
+		display_pwds(cipher, rows)
+	elif option == '2':
+		pwdid = input("Enter the id of the password need to delete: ")
+		pwdid = int(pwdid)
+		db.delete_task(conn, pwdid)
+		print("Password deleted\n")
+	elif option == '3':
+		pwdid = input("Enter the id of the password need to be copied: ")
+		pwdid = int(pwdid)
+		rows = db.select_by_id(conn, pwdid)
+		for row in rows:
+			pwd = crypt.decrypt_pwd(cipher, row[3])
+			pyperclip.copy(pwd)
+		print("Password copied to clipboard\n")
+
+
 def menu(conn, key):
 
 	cipher = crypt.read_key(key)
 
 	while(1):
 		print("*******************************")
-		print("[1] Search Passwords")
+		print("[1] Search Passwords by website")
 		print("[2] Add A Password")
 		print("[3] Show All")
-		print("[4] Update A Password")
-		print("[5] Delete A Password")
-		print("[6] Exit")
+		print("[4] Exit")
 		print("*******************************")
 
 		option = input("Enter number of the option: ")
@@ -50,6 +75,7 @@ def menu(conn, key):
 				print("No password of ", web, " stored\n")
 			else:
 				display_pwds(cipher, rows)
+				submenu(conn, cipher)
 
 		elif option == "2":
 			web = input("Which website? ")
@@ -66,22 +92,9 @@ def menu(conn, key):
 				print("no passwords stored yet\n")
 			else:
 				display_pwds(cipher, rows)
+				submenu(conn, cipher)
 
 		elif option == "4":
-			pwdid = input("What is the id of the password need to be updated? ")
-			pwdid = int(pwdid)
-			pwd = input("What is the new password? ")
-			pwd = crypt.encrypt_pwd(cipher, pwd)
-			db.update_pwd_by_id(conn, pwd, pwdid)
-			rows = db.select_by_id(conn, pwdid)
-			display_pwds(cipher, rows)
-
-		elif option == "5":
-			pwdid = input("Enter the id of the password need to delete: ")
-			pwdid = int(pwdid)
-			db.delete_task(conn, pwdid)
-
-		elif option == "6":
 			print("Bye!")
 			break
 
@@ -93,7 +106,7 @@ def menu(conn, key):
 conn = db.connect_db(r"pwds.db")
 db.create_table(conn)
 
-print("If you are the first time here, please save the following key to a safe place.")
+print("If you are the first time here, please use the following key and save it to a safe place.")
 print("You will need to enter this key to get your passwords in the future")
 print(crypt.new_key(), '\n')
 

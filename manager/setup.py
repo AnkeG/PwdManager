@@ -10,7 +10,7 @@ config = {
 	'download_url':'download_url',
 	'author_email':'geanke12@gmail.com',
 	'version':'0.1',
-	'install_requires':['sqlite3', 'cryptography'],
+	'install_requires':['sqlite3', 'cryptography', 'pyperclip',],
 	'packages':[],
 	'scripts':[],
 	'name': 'PwdManager'

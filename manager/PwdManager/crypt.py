@@ -7,6 +7,7 @@ def read_key(key):
 	return Fernet(key)
 
 def encrypt_pwd(cipher, s):
+	print(type(cipher))
 	return cipher.encrypt(str.encode(s))
 
 def decrypt_pwd(cipher, text):
