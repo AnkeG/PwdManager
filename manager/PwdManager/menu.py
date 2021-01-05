@@ -1,4 +1,5 @@
 import db, crypt, pyperclip
+import getpass
 
 def welcomemsg():
 	print("Welcome to Password Manager")
@@ -21,14 +22,14 @@ def display_pwds(cipher, rows):
 	print("\n")
 
 def get_key():
-	key = input("Please enter the encryption key: ")
+	key = getpass.getpass("Please enter the encryption key: ")
 	key = str.encode(key)
-	print(key)
+	print("\n")
 	return key
 
 def submenu(conn, cipher):
 	print("**[1] Update; [2] Delete [3]Copy to clip board**")
-	option = input("Enter above option numnber or other keys to quit: ")
+	option = input("Enter above option numnber or other keys to return: ")
 	if option == '1':
 		pwdid = input("What is the id of the password need to be updated? ")
 		pwdid = int(pwdid)
@@ -42,7 +43,7 @@ def submenu(conn, cipher):
 		pwdid = input("Enter the id of the password need to delete: ")
 		pwdid = int(pwdid)
 		db.delete_task(conn, pwdid)
-		print("Password deleted\n")
+		print("Password deleted")
 	elif option == '3':
 		pwdid = input("Enter the id of the password need to be copied: ")
 		pwdid = int(pwdid)
@@ -50,7 +51,7 @@ def submenu(conn, cipher):
 		for row in rows:
 			pwd = crypt.decrypt_pwd(cipher, row[3])
 			pyperclip.copy(pwd)
-		print("Password copied to clipboard\n")
+		print("Password copied to clipboard")
 
 
 def menu(conn, key):
@@ -58,6 +59,7 @@ def menu(conn, key):
 	cipher = crypt.read_key(key)
 
 	while(1):
+		print('\n')
 		print("*******************************")
 		print("[1] Search Passwords by website")
 		print("[2] Add A Password")
@@ -72,7 +74,7 @@ def menu(conn, key):
 			web = web.lower()
 			rows = db.select_by_website(conn, web)
 			if not rows:
-				print("No password of ", web, " stored\n")
+				print("No password of ", web, " stored")
 			else:
 				display_pwds(cipher, rows)
 				submenu(conn, cipher)
@@ -84,12 +86,12 @@ def menu(conn, key):
 			pwd = input("What is your password? ")
 			pwd = crypt.encrypt_pwd(cipher, pwd)
 			db.create_entry(conn, (web, user, pwd))
-			print("password stored\n")
+			print("password stored")
 
 		elif option == "3":
 			rows = db.select_all(conn)
 			if not rows:
-				print("no passwords stored yet\n")
+				print("no passwords stored yet")
 			else:
 				display_pwds(cipher, rows)
 				submenu(conn, cipher)
@@ -99,17 +101,17 @@ def menu(conn, key):
 			break
 
 		else: #error handle
-			print("no such option\n")
+			print("no such option")
 
 
+if __name__ == '__main__':
+	conn = db.connect_db(r"pwds.db")
+	db.create_table(conn)
 
-conn = db.connect_db(r"pwds.db")
-db.create_table(conn)
+	print("If you are the first time here, please use the following key and save it to a safe place.")
+	print(crypt.new_key().decode(), '\n')
+	input("You will need to enter this key to get your passwords in the future")
 
-print("If you are the first time here, please use the following key and save it to a safe place.")
-print("You will need to enter this key to get your passwords in the future")
-print(crypt.new_key(), '\n')
-
-#welcomemsg()
-key = get_key()
-menu(conn, key)
+	#welcomemsg()
+	key = get_key()
+	menu(conn, key)
