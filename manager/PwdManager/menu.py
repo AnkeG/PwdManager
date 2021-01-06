@@ -1,17 +1,18 @@
-import db, crypt, pyperclip
+import db, crypt, pyperclip, autopwd
 import getpass
 
 def welcomemsg():
-	print("Welcome to Password Manager")
-	MasterPwd = input("Please enter the Master Password:")
+	print("Welcome to Password Manager\n")
+	# MasterPwd = input("Please enter the Master Password:")
 
-	while MasterPwd != "12345":
-		print("Wrong Master Password")
-		MasterPwd = input("Please enter the Master Password:")
+	# while MasterPwd != "12345":
+	# 	print("Wrong Master Password")
+	# 	MasterPwd = input("Please enter the Master Password:")
 
-	print("You are in!\n")
+	# print("You are in!\n")
 
 def display_pwds(cipher, rows):
+	print("\n")
 	print("Id    website    username    pwds")
 	print("---------------------------------------------------------------")
 	for row in rows:
@@ -22,23 +23,23 @@ def display_pwds(cipher, rows):
 	print("\n")
 
 def get_key():
-	key = getpass.getpass("Please enter the encryption key: ")
+	key = getpass.getpass("Enter the encryption key: ")
 	key = str.encode(key)
 	print("\n")
 	return key
 
 def submenu(conn, cipher):
 	print("**[1] Update; [2] Delete [3]Copy to clip board**")
-	option = input("Enter above option numnber or other keys to return: ")
+	option = input("Enter above option numnber or any other keys to return: ")
 	if option == '1':
 		pwdid = input("What is the id of the password need to be updated? ")
 		pwdid = int(pwdid)
-		pwd = input("What is the new password? ")
+		pwd = input("What is the new password?(enter 'a' for auto generated password) ")
+		if pwd == 'a':
+			pwd = autopwd.autopwd()
 		pwd = crypt.encrypt_pwd(cipher, pwd)
 		db.update_pwd_by_id(conn, pwd, pwdid)
 		print("Password updated")
-		rows = db.select_by_id(conn, pwdid)
-		display_pwds(cipher, rows)
 	elif option == '2':
 		pwdid = input("Enter the id of the password need to delete: ")
 		pwdid = int(pwdid)
@@ -83,7 +84,9 @@ def menu(conn, key):
 			web = input("Which website? ")
 			web = web.lower()
 			user = input("What is your username? ")
-			pwd = input("What is your password? ")
+			pwd = input("What is your password? (enter 'a' for auto generated password) ")
+			if pwd == 'a':
+				pwd = autopwd.autopwd()
 			pwd = crypt.encrypt_pwd(cipher, pwd)
 			db.create_entry(conn, (web, user, pwd))
 			print("password stored")
@@ -108,10 +111,11 @@ if __name__ == '__main__':
 	conn = db.connect_db(r"pwds.db")
 	db.create_table(conn)
 
+	welcomemsg()
 	print("If you are the first time here, please use the following key and save it to a safe place.")
 	print(crypt.new_key().decode(), '\n')
-	input("You will need to enter this key to get your passwords in the future")
+	print("You will need to enter this key to get your passwords in the future")
+	input("If you already got your encryption key, please ignore this message")
 
-	#welcomemsg()
 	key = get_key()
 	menu(conn, key)
